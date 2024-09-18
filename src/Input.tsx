@@ -9,8 +9,10 @@ type InputProps = {
 };
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  (props, ref: ForwardedRef<HTMLInputElement>) => {
-    const { label, name, defaultValue, step, max } = props;
+  (
+    { label, name, defaultValue, step, max },
+    ref: ForwardedRef<HTMLInputElement>
+  ) => {
     return (
       <div className="flex justify-between items-center w-56 lg:w-64">
         <label htmlFor={name}>{label}</label>

@@ -39,7 +39,7 @@ export function fitness(n: number, chromosome: number[]): number {
   let conflict = 0;
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
-      if (Math.abs(i - j) == Math.abs(chromosome[i] - chromosome[j])) {
+      if (Math.abs(i - j) === Math.abs(chromosome[i] - chromosome[j])) {
         conflict++;
       }
     }
@@ -55,17 +55,18 @@ export function crossover(
   const children: Chromosome[] = [];
 
   for (let i = 0; i < size; i += 2) {
-    const crossPoint = random(2, n - 2);
+    // محاسبه نقطه تقاطع به درستی برای اعداد فرد و زوج
+    const crossPoint = Math.floor(n / 2); // نقطه میانی ثابت می‌شود تا برای تعداد ژن‌های فرد نیز کار کند
 
     const genes1: number[] = population[i].getGenes().slice(0, crossPoint);
-    for (let j = 0; j < n; j++) {
-      const genNum = population[i + 1].getGenes()[j];
-      if (!genes1.includes(genNum)) genes1.push(genNum);
-    }
     const genes2: number[] = population[i + 1].getGenes().slice(0, crossPoint);
+
     for (let j = 0; j < n; j++) {
-      const genNum = population[i].getGenes()[j];
-      if (!genes2.includes(genNum)) genes2.push(genNum);
+      const genNum1 = population[i + 1].getGenes()[j];
+      if (!genes1.includes(genNum1)) genes1.push(genNum1);
+
+      const genNum2 = population[i].getGenes()[j];
+      if (!genes2.includes(genNum2)) genes2.push(genNum2);
     }
 
     const child1 = new Chromosome(genes1, 0);
@@ -73,6 +74,7 @@ export function crossover(
     children.push(child1);
     children.push(child2);
   }
+
   return children;
 }
 
@@ -81,7 +83,7 @@ export function mutation(
   size: number,
   children: Chromosome[],
   mutationRate: number
-) {
+): void {
   for (let i = 0; i < mutationRate * size; i++) {
     const pos1 = random(0, n - 1);
     const pos2 = random(0, n - 1);
@@ -99,14 +101,16 @@ function uniqList(min: number, max: number): number[] {
   for (let i = min; i <= max; i++) {
     uniqList.push(i);
   }
-  function shuffleArray(array: number[]): number[] {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
+
   return shuffleArray(uniqList);
+}
+
+function shuffleArray(array: number[]): number[] {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
 }
 
 function random(min: number, max: number): number {

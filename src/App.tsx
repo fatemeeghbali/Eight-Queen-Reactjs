@@ -9,17 +9,23 @@ import {
 import Chessboard from "./Chessboard";
 import Input from "./Input";
 
+// Define the type for your refs
+
+// interface InputRefs {
+//   current: HTMLInputElement | null;
+// }
+
 export default function App() {
   const [solution, setSolution] = useState<number[]>([]);
-  const [generationTh, setGenerationTh] = useState(0);
-  // const [conflict, setConflict] = useState(0);
+  const [generationTh, setGenerationTh] = useState<number>(0);
 
+  // UseRef types
   const queenNumber = useRef<HTMLInputElement>(null);
   const populationSize = useRef<HTMLInputElement>(null);
   const mutationRate = useRef<HTMLInputElement>(null);
   const maxGeneration = useRef<HTMLInputElement>(null);
 
-  function startGeneration(e: FormEvent<HTMLFormElement>) {
+  function startGeneration(e: FormEvent<HTMLFormElement>): void {
     e.preventDefault();
 
     const n = Number(queenNumber.current?.value);
@@ -36,12 +42,16 @@ export default function App() {
     let generation = 0;
     while (generation < m_g + 1) {
       generation++;
+
       // 2: eliminate --> remove second half with bad ranking
-      const firstHalf: Chromosome[] = population.slice(0, (3 * size) / 4);
+      const firstHalf: Chromosome[] = population.slice(
+        0,
+        Math.floor((3 * size) / 4)
+      );
       population = population.filter((chromosome) =>
         firstHalf.includes(chromosome)
       );
-      size = (3 * size) / 4;
+      size = Math.floor((3 * size) / 4);
 
       // 3: crossover
       const children: Chromosome[] = crossover(n, size, population);
@@ -57,16 +67,15 @@ export default function App() {
       // adding to main population and sort
       population.push(...children);
       population.sort((a, b) => a.getRank() - b.getRank());
-      size = (size * 4) / 3;
+      size = Math.floor((size * 4) / 3);
 
-      // update ui
+      // update UI
       setSolution(population[0].getGenes());
-      // setConflict(population[0].getRank());
       setGenerationTh(generation);
 
       // stop condition
-      if (population[0].getRank() == 0 || generation == m_g) {
-        if (generation == m_g) {
+      if (population[0].getRank() === 0 || generation === m_g) {
+        if (generation === m_g) {
           console.log("best solution conflicts is: " + population[0].getRank());
           break;
         }
@@ -92,14 +101,16 @@ export default function App() {
         className="flex flex-col justify-center items-center space-y-1 md:space-y-4 text-lg lg:text-xl"
         onSubmit={startGeneration}
       >
+        {/* وزیر */}
         <Input
-          label="Queens: "
+          label="Ministers: "
           name="queen-number"
           defaultValue={8}
-          step={2}
+          step={1}
           max={100}
           ref={queenNumber}
         />
+        {/* جمعیت */}
         <Input
           label="Population: "
           name="population"
@@ -108,6 +119,7 @@ export default function App() {
           max={1000}
           ref={populationSize}
         />
+        {/* نرخ جهش */}
         <Input
           label="Mutation rate: "
           name="mutation-rate"
@@ -116,8 +128,9 @@ export default function App() {
           max={1}
           ref={mutationRate}
         />
+        {/* حداکثر نسل */}
         <Input
-          label="Max generation: "
+          label="Max‌generation: "
           name="max-generation"
           defaultValue={10000}
           step={100}
@@ -125,7 +138,7 @@ export default function App() {
           ref={maxGeneration}
         />
         <button
-          className="bg-gradient-to-r from-emerald-600 to-emerald-400 w-full
+          className="bg-gradient-to-r from-pink-600 to-pink-400 w-full
           lg:py-3 py-1.5 rounded-lg hover:opacity-80 transition active:scale-95 text-base lg:text-xl"
           type="submit"
         >
